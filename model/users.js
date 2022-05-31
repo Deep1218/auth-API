@@ -13,6 +13,10 @@ const userSchema = new Schema({
   googleId: {
     type: String,
   },
+  profile: {
+    type: String,
+    default: "assets/img/blank-profile.png",
+  },
   phoneNo: {
     type: Number,
   },

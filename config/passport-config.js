@@ -23,7 +23,6 @@ passport.use(
       callbackURL: "/auth/google/redirect",
     },
     (accessToken, refreshToken, profile, done) => {
-      console.log(profile.emails[0].value);
       // check if user already exists in our own db
       User.findOne({ googleId: profile.id }).then((currentUser) => {
         if (currentUser) {
@@ -35,6 +34,7 @@ passport.use(
           new User({
             name: profile.displayName,
             googleId: profile.id,
+            profile: profile._json.picture,
             email: profile.emails[0].value,
             registerType: "google",
           })
