@@ -29,7 +29,6 @@ const userSchema = new Schema({
     type: String,
     required: false,
   },
-  tokens: [{}],
 });
 
 userSchema.statics.findByCredentials = async (email, password) => {
