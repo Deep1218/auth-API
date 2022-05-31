@@ -6,7 +6,7 @@ const passport = require("passport");
 require("./config/db-config");
 require("./config/passport-config");
 
-const googleAuthRoutes = require("./modules/Helper/google-auth");
+const authRoutes = require("./modules/Auth/route");
 
 const app = express();
 
@@ -23,7 +23,7 @@ app.use(
 app.use(passport.initialize());
 app.use(passport.session());
 
-app.use("/auth", googleAuthRoutes);
+app.use("/auth", authRoutes);
 
 app.use(express.json());
 app.use(morgan("dev"));
