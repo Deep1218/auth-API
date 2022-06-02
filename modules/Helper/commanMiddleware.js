@@ -3,13 +3,14 @@ const User = require("../../model/users");
 
 const auth = async (req, res, next) => {
   try {
-    const token = req.cookies.authToken;
+    // console.log("Working", req.headers.cookie.split(";")[1].split("=")[1]);
+    const token = req.headers.cookie.split(";")[1].split("=")[1];
     if (!token) {
       throw new Error();
     }
 
     const decoded = jwt.verify(token, "loginPages");
-    console.log("Token Decoded", decoded);
+    // console.log("Token Decoded", decoded);
     const user = await User.findOne({
       _id: decoded._id,
     });
@@ -17,7 +18,6 @@ const auth = async (req, res, next) => {
     if (!user) {
       throw new Error();
     }
-
     req.user = user;
     next();
   } catch (error) {

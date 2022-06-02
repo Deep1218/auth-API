@@ -4,7 +4,7 @@ const auth = require("../Helper/commanMiddleware");
 const User = require("../../model/users");
 const jwt = require("jsonwebtoken");
 // auth login
-router.post("/login", auth, async (req, res) => {
+router.post("/login", async (req, res) => {
   try {
     try {
       const user = await User.findByCredentials(
@@ -31,12 +31,11 @@ router.post("/login", auth, async (req, res) => {
 router.get("/logout", auth, (req, res, next) => {
   try {
     req.logout((error) => {
-      console.log(error);
       if (error) {
         throw new Error(error);
       }
+      // console.log(res);
       res.clearCookie("authToken");
-      res.clearCookie("response");
       res.status(200).send({ message: "Logged out" });
     });
   } catch (error) {
@@ -46,27 +45,24 @@ router.get("/logout", auth, (req, res, next) => {
 
 // auth with google
 router.get(
-  "/google",
+  "/google/register",
   passport.authenticate("google", {
     scope: ["profile", "email"],
   })
 );
 
+router.get(
+  "/google/login",
+  passport.authenticate("google", { scope: ["profile", "email"] })
+);
+
 // callback route for google to redirect to
 router.get("/google/redirect", passport.authenticate("google"), (req, res) => {
-  // res.send(req.user);
   try {
-    console.log("userId", req.user.id);
+    console.log(req);
     const token = jwt.sign({ _id: req.user.id.toString() }, "loginPages");
     console.log("currentToken", token);
-    res
-      .cookie("authToken", token, {
-        httpOnly: true,
-      })
-      .cookie("response", {
-        message: "Logged in successfully",
-        user: req.user,
-      });
+    res.cookie("authToken", token);
     res.status(200).redirect("http://localhost:4200/home");
   } catch (error) {
     console.log(error);
@@ -80,10 +76,24 @@ router.post("/register", async (req, res) => {
     const user = new User(req.body);
     await user.save();
     //TODO Add send mail verfication
-    res.status(200).send({ message: "successfully registered", user, token });
+    res
+      .cookie("authToken", token, {
+        httpOnly: true,
+      })
+      .status(200)
+      .send({ message: "successfully registered", user });
   } catch (error) {
     res.status(400).send({ error });
   }
 });
 
+//auth get user
+router.get("/user", auth, async (req, res) => {
+  try {
+    console.log("working");
+    res.status(200).send({ message: "successfully", user: req.user });
+  } catch (error) {
+    res.status(400).send({ error });
+  }
+});
 module.exports = router;

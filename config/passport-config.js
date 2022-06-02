@@ -13,7 +13,6 @@ passport.deserializeUser((id, done) => {
     done(null, user);
   });
 });
-
 passport.use(
   new GoogleStrategy(
     {
@@ -25,6 +24,7 @@ passport.use(
     (accessToken, refreshToken, profile, done) => {
       // check if user already exists in our own db
       User.findOne({ googleId: profile.id }).then((currentUser) => {
+        // console.log("User", currentUser);
         if (currentUser) {
           // already have this user
           console.log("user is: ", currentUser);
