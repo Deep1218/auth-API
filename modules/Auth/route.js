@@ -44,15 +44,15 @@ router.get("/logout", auth, (req, res, next) => {
 });
 
 // auth with google
-router.get(
-  "/google/register",
-  passport.authenticate("google", {
-    scope: ["profile", "email"],
-  })
-);
+// router.get(
+//   "/google/register",
+//   passport.authenticate("google", {
+//     scope: ["profile", "email"],
+//   })
+// );
 
 router.get(
-  "/google/login",
+  "/google",
   passport.authenticate("google", { scope: ["profile", "email"] })
 );
 
