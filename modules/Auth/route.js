@@ -3,6 +3,7 @@ const passport = require("passport");
 const auth = require("../Helper/commanMiddleware");
 const User = require("../../model/users");
 const jwt = require("jsonwebtoken");
+const { response } = require("express");
 // auth login
 router.post("/login", async (req, res) => {
   try {
@@ -43,32 +44,76 @@ router.get("/logout", auth, (req, res, next) => {
   }
 });
 
-// auth with google
-// router.get(
-//   "/google/register",
-//   passport.authenticate("google", {
-//     scope: ["profile", "email"],
-//   })
-// );
-
+// auth with google login
 router.get(
-  "/google",
-  passport.authenticate("google", { scope: ["profile", "email"] })
+  "/google/login",
+  passport.authenticate("login-google", {
+    scope: ["profile", "email"],
+  })
+);
+// auth with google sign
+router.get(
+  "/google/signup",
+  passport.authenticate("signup-google", {
+    scope: ["profile", "email"],
+  })
 );
 
 // callback route for google to redirect to
-router.get("/google/redirect", passport.authenticate("google"), (req, res) => {
-  try {
-    console.log(req);
-    const token = jwt.sign({ _id: req.user.id.toString() }, "loginPages");
-    console.log("currentToken", token);
-    res.cookie("authToken", token);
-    res.status(200).redirect("http://localhost:4200/home");
-  } catch (error) {
-    console.log(error);
-    res.status(400).send({ error });
+router.get(
+  "/google/loginRedirect",
+  passport.authenticate("login-google"),
+  (req, res) => {
+    try {
+      if (req.error) {
+        console.log(req.error);
+        throw new Error(req.error);
+      }
+      //generate token
+      const token = jwt.sign({ _id: req.user.id.toString() }, "loginPages");
+      console.log("currentToken", token);
+      // response token save to cookie
+      res
+        .cookie("authToken", token)
+        .status(200)
+        .redirect("http://localhost:4200/home");
+    } catch (error) {
+      console.log(error);
+      res
+        .cookie("error", error)
+        .status(400)
+        .redirect("http://localhost:4200/loginOne");
+    }
   }
-});
+);
+
+// callback route for google sign to redirect
+router.get(
+  "/google/signupRedirect",
+  passport.authenticate("signup-google"),
+  (req, res) => {
+    try {
+      if (req.error) {
+        console.log(req.error);
+        throw new Error(req.error);
+      }
+      //generate token
+      const token = jwt.sign({ _id: req.user.id.toString() }, "loginPages");
+      console.log("currentToken", token);
+      // response token save to cookie
+      res
+        .cookie("authToken", token)
+        .status(200)
+        .redirect("http://localhost:4200/home");
+    } catch (error) {
+      console.log(error);
+      res
+        .cookie("error", error)
+        .status(400)
+        .redirect("http://localhost:4200/loginOne");
+    }
+  }
+);
 
 // auth create user
 router.post("/register", async (req, res) => {

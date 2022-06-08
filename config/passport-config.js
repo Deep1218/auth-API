@@ -13,24 +13,49 @@ passport.deserializeUser((id, done) => {
     done(null, user);
   });
 });
+
+// strategy for login
 passport.use(
+  "login-google",
   new GoogleStrategy(
     {
       // options for google strategy
       clientID: GOOGLE_CLIENT_ID,
       clientSecret: GOOGLE_CLIENT_SECRET,
-      callbackURL: "/auth/google/redirect",
+      callbackURL: "/auth/google/loginRedirect",
+      passReqToCallback: true,
     },
-    (accessToken, refreshToken, profile, done) => {
-      // check if user already exists in our own db
-      User.findOne({ googleId: profile.id }).then((currentUser) => {
-        // console.log("User", currentUser);
-        if (currentUser) {
-          // already have this user
-          console.log("user is: ", currentUser);
+    (req, accessToken, refreshToken, profile, done) => {
+      User.find({ googleId: profile.id }).then((currentUser) => {
+        if (!currentUser) {
+          req.error = "User not registered.";
           done(null, currentUser);
         } else {
-          // if not, create user in our db
+          req.user = currentUser;
+          done(null, currentUser);
+        }
+      });
+    }
+  )
+);
+
+// strategy for signup
+passport.use(
+  "signup-google",
+  new GoogleStrategy(
+    {
+      // options for google strategy
+      clientID: GOOGLE_CLIENT_ID,
+      clientSecret: GOOGLE_CLIENT_SECRET,
+      callbackURL: "/auth/google/signupRedirect",
+      passReqToCallback: true,
+    },
+    (req, accessToken, refreshToken, profile, done) => {
+      User.find({ googleId: profile.id }).then((currentUser) => {
+        if (currentUser) {
+          req.error = "User already exixts.";
+          done(null, currentUser);
+        } else {
           new User({
             name: profile.displayName,
             googleId: profile.id,
@@ -38,9 +63,9 @@ passport.use(
             email: profile.emails[0].value,
             registerType: "google",
           })
-            .save()
+            .sav()
             .then((newUser) => {
-              console.log("created new user: ", newUser);
+              req.user = newUser;
               done(null, newUser);
             });
         }
