@@ -1,5 +1,7 @@
 const mongoose = require("mongoose");
+const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
+
 const Schema = mongoose.Schema;
 
 const userSchema = new Schema({
@@ -9,6 +11,7 @@ const userSchema = new Schema({
   },
   registerType: {
     type: String,
+    default: "local",
   },
   googleId: {
     type: String,
@@ -47,21 +50,12 @@ userSchema.statics.findByCredentials = async (email, password) => {
   return user;
 };
 
-// userSchema.methods.generateAuthToken = async function () {
-//   const user = this;
-//   const token = jwt.sign({ _id: user._id.toString() }, "loginPages");
-
-//   await user.save();
-
-//   return token;
-// };
-
 userSchema.methods.toJSON = function () {
   const user = this;
   const userObject = user.toObject();
 
   delete userObject.password;
-  delete userObject.tokens;
+  // delete userObject.tokens;
 
   return userObject;
 };
@@ -69,6 +63,7 @@ userSchema.methods.toJSON = function () {
 // Hash the plain text password before saving
 userSchema.pre("save", async function (next) {
   const user = this;
+  console.log(user);
 
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);

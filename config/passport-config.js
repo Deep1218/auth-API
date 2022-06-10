@@ -4,16 +4,6 @@ const { GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET } = process.env;
 
 const User = require("../model/users");
 
-passport.serializeUser((user, done) => {
-  done(null, user.id);
-});
-
-passport.deserializeUser((id, done) => {
-  User.findById(id).then((user) => {
-    done(null, user);
-  });
-});
-
 // strategy for login
 passport.use(
   "login-google",
@@ -27,11 +17,11 @@ passport.use(
     },
     (req, accessToken, refreshToken, profile, done) => {
       User.find({ googleId: profile.id }).then((currentUser) => {
-        if (!currentUser) {
-          req.error = "User not registered.";
+        if (currentUser.length != 0) {
+          req._user = currentUser;
           done(null, currentUser);
         } else {
-          req.user = currentUser;
+          req._error = "User is not registered.";
           done(null, currentUser);
         }
       });
@@ -52,8 +42,8 @@ passport.use(
     },
     (req, accessToken, refreshToken, profile, done) => {
       User.find({ googleId: profile.id }).then((currentUser) => {
-        if (currentUser) {
-          req.error = "User already exixts.";
+        if (currentUser.length != 0) {
+          req._error = "User already exixts.";
           done(null, currentUser);
         } else {
           new User({
@@ -63,9 +53,9 @@ passport.use(
             email: profile.emails[0].value,
             registerType: "google",
           })
-            .sav()
+            .save()
             .then((newUser) => {
-              req.user = newUser;
+              req._user = newUser;
               done(null, newUser);
             });
         }

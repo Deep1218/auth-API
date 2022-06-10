@@ -1,14 +1,15 @@
 const jwt = require("jsonwebtoken");
 const User = require("../../model/users");
+const { getCookies } = require("../Auth/uitils");
 
 const auth = async (req, res, next) => {
   try {
-    // console.log("Working", req.headers.cookie.split(";")[1].split("=")[1]);
-    const token = req.headers.cookie.split(";")[1].split("=")[1];
+    // console.log("Working");
+    let localCookies = getCookies(req);
+    const token = localCookies.authToken;
     if (!token) {
       throw new Error();
     }
-
     const decoded = jwt.verify(token, "loginPages");
     // console.log("Token Decoded", decoded);
     const user = await User.findOne({
@@ -18,7 +19,7 @@ const auth = async (req, res, next) => {
     if (!user) {
       throw new Error();
     }
-    req.user = user;
+    req._user = user;
     next();
   } catch (error) {
     res.status(401).send({ error: "Please authenticate." });
