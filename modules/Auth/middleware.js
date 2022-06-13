@@ -7,14 +7,14 @@ router.get(
   "/login",
   passport.authenticate("login-google", {
     scope: ["profile", "email"],
-  })
+  }),
 );
 // auth with google sign
 router.get(
   "/signup",
   passport.authenticate("signup-google", {
     scope: ["profile", "email"],
-  })
+  }),
 );
 
 // callback route for google to redirect to
@@ -43,7 +43,7 @@ router.get(
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 );
 
 // callback route for google sign to redirect
@@ -52,8 +52,6 @@ router.get(
   passport.authenticate("signup-google", { session: false }),
   (req, res) => {
     try {
-      console.log("Signup", req._error);
-      console.log("Signup", req._user);
       if (req._error) {
         res
           .cookie("error", req._error)
@@ -72,7 +70,7 @@ router.get(
     } catch (error) {
       console.log(error);
     }
-  }
+  },
 );
 
 module.exports = router;

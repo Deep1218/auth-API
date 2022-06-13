@@ -25,8 +25,8 @@ passport.use(
           done(null, currentUser);
         }
       });
-    }
-  )
+    },
+  ),
 );
 
 // strategy for signup
@@ -53,7 +53,7 @@ passport.use(
             email: profile.emails[0].value,
             registerType: "google",
             verified: profile.verified,
-            passowrd: profile.displayName + profile.id,
+            password: profile.displayName + profile.id,
           })
             .save()
             .then((newUser) => {
@@ -62,6 +62,6 @@ passport.use(
             });
         }
       });
-    }
-  )
+    },
+  ),
 );
