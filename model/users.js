@@ -1,6 +1,5 @@
 const mongoose = require("mongoose");
 const bcrypt = require("bcrypt");
-const jwt = require("jsonwebtoken");
 
 const Schema = mongoose.Schema;
 
@@ -30,7 +29,15 @@ const userSchema = new Schema({
   },
   password: {
     type: String,
-    required: false,
+    required: true,
+  },
+  verified: {
+    type: Boolean,
+    require: true,
+    default: false,
+  },
+  tempToken: {
+    type: String,
   },
 });
 
@@ -63,7 +70,7 @@ userSchema.methods.toJSON = function () {
 // Hash the plain text password before saving
 userSchema.pre("save", async function (next) {
   const user = this;
-  console.log(user);
+  // console.log(user);
 
   if (user.isModified("password")) {
     user.password = await bcrypt.hash(user.password, 8);

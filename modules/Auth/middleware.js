@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const passport = require("passport");
-const jwt = require("jsonwebtoken");
+const { getAuthToken } = require("./uitils");
 
 // auth with google login
 router.get(
@@ -32,11 +32,8 @@ router.get(
           .redirect("http://localhost:4200/loginOne");
       } else {
         //generate token
-        const token = jwt.sign(
-          { _id: req._user[0]._id.toString() },
-          "loginPages"
-        );
-        console.log("currentToken", token);
+        const token = getAuthToken(req._user[0]._id.toString());
+        // console.log("currentToken", token);
         // response token save to cookie
         res
           .cookie("authToken", token)
@@ -64,8 +61,8 @@ router.get(
           .redirect("http://localhost:4200/loginOne/newAccount");
       } else {
         //generate token
-        const token = jwt.sign({ _id: req._user._id.toString() }, "loginPages");
-        console.log("currentToken", token);
+        const token = getAuthToken(req._user._id.toString());
+        // console.log("currentToken", token);
         // response token save to cookie
         res
           .cookie("authToken", token)

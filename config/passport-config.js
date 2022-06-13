@@ -52,6 +52,8 @@ passport.use(
             profile: profile._json.picture,
             email: profile.emails[0].value,
             registerType: "google",
+            verified: profile.verified,
+            passowrd: profile.displayName + profile.id,
           })
             .save()
             .then((newUser) => {
